@@ -1,0 +1,5 @@
+require 'corned_beef/conversions'
+require 'corned_beef/attributes'
+require 'corned_beef/model'
+require 'corned_beef/seeds'
+require 'corned_beef/relation'
