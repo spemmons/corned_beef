@@ -36,7 +36,7 @@ module CornedBeef
 
     should 'support defining accessors' do
       AttributeTester.corned_beef_accessor :accessor
-      assert_equal ['accessor'],AttributeTester.corned_beef_attributes
+      assert_equal %w(accessor),AttributeTester.corned_beef_attributes
 
       tester = AttributeTester.new
       assert_nil tester.accessor
