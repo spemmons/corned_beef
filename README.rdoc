@@ -1,3 +1,23 @@
-= YAML Models (CornedBeef)
+= (CornedBeef)Hash-based Models -- for ActiveRecord or any other Ruby class {<img src="https://secure.travis-ci.org/spemmons/corned_beef.png?branch=master" alt="Build Status" />}[http://travis-ci.org/spemmons/corned_beef]
+
+CornedBeef allows the use of Hash-type data structures, such as those coming from JSON or YAML, to be used
+for Ruby classes, and in particular, ActiveRecord classes.
+
+On any class including CornedBeef::Attributes, you may define generic, as well as typed, reader or accessor (i.e., read/write)
+attributes that are pulled from a "corned_beef_hash" attribute.
+Each attribute can have a default value that, when set, will NOT be included in the "corned_beef_hash" --
+the intent is to keep this collection minimal.
+
+For an ActiveRecord::Base class, you may include CornedBeef::Model and specify a string-based "corned_beef_hash_alias"
+that will be the database field used to store the "corned_beef_hash".
+When setting the "corned_beef_hash_alias" attribute, any hash keys matching actual database fields will be removed
+and used to set the field values -- this occurs on "new/create", "update_attribute(s)", and explicity assignment.
+Methods "to_hash", "to_json", and "to_yaml" will combine all fields and values of "corned_beef_hash" into a single,
+combined list, as well.
+
+When an ActiveRecord class is intended for use as a set of idempotent "seeds", you may include CornedBeef:Seeds
+to provide convenient mapping of a YAML file in the Rails config directory to be loaded into the database.
+Simply name the YAML file the "underscore" version of the model name and call the class method "reset_seeds"
+in the /db/seeds.rb file for the Rake "db:seed" task to load.
 
 This project rocks and uses MIT-LICENSE.
