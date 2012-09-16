@@ -53,13 +53,13 @@ module CornedBeef
         self.class.corned_beef_attribute?(attribute) ? send(attribute) : corned_beef_hash[attribute]
       end
 
-      def corned_beef_update_attribute(attribute,value)
+      def corned_beef_set_attribute(attribute,value)
         attribute = attribute.to_s
         self.class.corned_beef_attribute?(attribute) ? send("#{attribute}=",value) : (corned_beef_hash[attribute] = value)
       end
 
-      def corned_beef_update_attributes(hash)
-        hash.each{|pair| corned_beef_update_attribute(*pair)}
+      def corned_beef_set_attributes(hash)
+        hash.each{|pair| corned_beef_set_attribute(*pair)}
       end
 
       def corned_beef_hash

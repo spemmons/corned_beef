@@ -21,4 +21,11 @@ to provide convenient mapping of a YAML file in the Rails config directory to be
 Simply name the YAML file the "underscore" version of the model name and call the class method "reset_seeds"
 in the /db/seeds.rb file for the Rake "db:seed" task to load.
 
+=== Usage Notes
+
+* If accessor attributes are defined, be sure to use the named "setter" method or "corned_beef_set_attribute(s)" methods.
+While it is possible to perform actions "corned_beef_hash[...] = ...", subsequent calls to "getter" methods may not return the new value.
+* Avoid changing the value of any "corned_beef_defaults" dynamically, as this may lead to inconsistent results.
+Instead, change the default in the definition of the attribute.
+
 This project rocks and uses MIT-LICENSE.

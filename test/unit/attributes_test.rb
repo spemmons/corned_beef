@@ -66,13 +66,13 @@ module CornedBeef
           assert_equal ({type.to_s => 2}),tester.corned_beef_hash
 
           assigned_value = Conversions.send conversion_method,3
-          tester.corned_beef_update_attribute(type,3)
+          tester.corned_beef_set_attribute(type,3)
           assert_equal assigned_value,tester.send(type)
           assert_equal assigned_value,tester.corned_beef_get_attribute(type)
           assert_equal ({type.to_s => 3}),tester.corned_beef_hash
 
           assigned_value = Conversions.send conversion_method,4
-          tester.corned_beef_update_attributes(type => 4)
+          tester.corned_beef_set_attributes(type => 4)
           assert_equal assigned_value,tester.send(type)
           assert_equal assigned_value,tester.corned_beef_get_attribute(type)
           assert_equal ({type.to_s => 4}),tester.corned_beef_hash
