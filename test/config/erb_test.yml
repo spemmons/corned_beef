@@ -1,0 +1,45 @@
+- id: 1
+  field_string:   <%= 'field_1' %>
+  field_integer:  <%= 1 %>
+  field_float:    <%= 2.0 %>
+  extra_integer:  <%= 3 %>
+  extra_float:    <%= 4.0 %>
+  extra_string:   <%= 'extra_1' %>
+  extra_array:
+    - <%= 1 %>
+    - <%= 2 %>
+    - <%= 3 %>
+  extra_hash:
+    one:    <%= 'hash_1' %>
+    two:    <%= 'hash_2' %>
+    three:  <%= 'hash_3' %>
+- id: 2
+  field_string:   <%= 'field_10' %>
+  field_integer:  <%= 10 %>
+  field_float:    <%= 20.0 %>
+  extra_integer:  <%= 30 %>
+  extra_float:    <%= 40.0 %>
+  extra_string:   <%= 'extra_10' %>
+  extra_array:
+    - <%= 10 %>
+    - <%= 20 %>
+    - <%= 30 %>
+  extra_hash:
+    one:    <%= 'hash_10' %>
+    two:    <%= 'hash_20' %>
+    three:  <%= 'hash_30' %>
+- id: 3
+  field_string:   <%= 'field_100' %>
+  field_integer:  <%= 100 %>
+  field_float:    <%= 200.0 %>
+  extra_integer:  <%= 300 %>
+  extra_float:    <%= 400.0 %>
+  extra_string:   <%= 'extra_100' %>
+  extra_array:
+    - <%= 100 %>
+    - <%= 200 %>
+    - <%= 300 %>
+  extra_hash:
+    one:    <%= 'hash_100' %>
+    two:    <%= 'hash_200' %>
+    three:  <%= 'hash_300' %>

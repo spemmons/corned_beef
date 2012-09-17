@@ -11,12 +11,24 @@ module CornedBeef
 
     module ClassMethods
 
+      def corned_beef_disable_erb?
+        @corned_beef_disable_erb
+      end
+
+      def corned_beef_disable_erb(value)
+        @corned_beef_disable_erb = value
+      end
+
       def seed_yaml_file
         Rails.root + "config/#{name.underscore}.yml"
       end
 
       def seed_attribute_sets
-        YAML::load_file(seed_yaml_file)
+        if corned_beef_disable_erb?
+          YAML::load_file(seed_yaml_file)
+        else
+          YAML::load(ERB.new(File.read(seed_yaml_file)).result)
+        end
       end
 
       def reset_seeds
