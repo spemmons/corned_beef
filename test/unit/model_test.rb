@@ -104,6 +104,16 @@ module CornedBeef
 
     end
 
+    should 'set attributes and save their values' do
+
+      tester = DatabaseTester.new
+      assert_nil tester.extra_integer
+
+      tester.extra_integer = 1
+      assert_equal 1,tester.extra_integer
+
+    end
+
   end
 
 end

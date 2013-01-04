@@ -41,8 +41,18 @@ module CornedBeef
       end
 
       def corned_beef_hash
-        self.corned_beef_hash = result = {} unless result = read_attribute(corned_beef_hash_alias)
-        result.with_indifferent_access
+        return @corned_beef_hash if @corned_beef_hash
+
+        case result = read_attribute(corned_beef_hash_alias)
+          when nil
+            result = self.corned_beef_hash = {}.with_indifferent_access
+          when Hash
+            result = self.corned_beef_hash = result.with_indifferent_access
+          else
+            raise "corned_beef_hash must be ActiveSupport::HashWithIndifferentAccess but is #{result.class}" unless result.is_a?(ActiveSupport::HashWithIndifferentAccess)
+        end
+
+        @corned_beef_hash = result
       end
 
       def corned_beef_hash=(hash)
