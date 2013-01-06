@@ -21,6 +21,20 @@ module CornedBeef
         class_eval %[def #{attribute}; corned_beef_hash; end]
 
         before_validation :update_corned_beef_hash
+
+        ::ActiveRecord::AttributeMethods::Dirty.class_eval do
+          def corned_beef_hashes
+            respond_to?(:corned_beef_hash_alias) ? [corned_beef_hash_alias.to_s] : []
+          end
+
+          def update(*)
+            if partial_updates?
+              super(changed | ((attributes.keys & self.class.serialized_attributes.keys) - corned_beef_hashes))
+            else
+              super
+            end
+          end
+        end
       end
 
     end
@@ -49,7 +63,7 @@ module CornedBeef
           when Hash
             result = self.corned_beef_hash = result.with_indifferent_access
           else
-            raise "corned_beef_hash must be ActiveSupport::HashWithIndifferentAccess but is #{result.class}" unless result.is_a?(ActiveSupport::HashWithIndifferentAccess)
+            raise "corned_beef_hash must be Hash but is #{result.class}"
         end
 
         @corned_beef_hash = result
@@ -58,8 +72,8 @@ module CornedBeef
       def corned_beef_hash=(hash)
         hash = hash.dup.with_indifferent_access
         (hash.keys & self.class.columns.collect(&:name)).each {|column_name| eval %[self.#{column_name} = hash.delete(column_name)]}
-        eval %[self.#{corned_beef_hash_alias} = hash]
         super(hash)
+        write_attribute(corned_beef_hash_alias,@corned_beef_hash.to_hash) if @corned_beef_hash != read_attribute(corned_beef_hash_alias)
       end
 
       def to_hash
@@ -75,10 +89,8 @@ module CornedBeef
         to_hash.to_yaml
       end
 
-    private
-
       def update_corned_beef_hash
-        self.corned_beef_hash = corned_beef_hash if changed_attributes.include?(corned_beef_hash_alias.to_s)
+        self.corned_beef_hash = corned_beef_hash
       end
 
     end

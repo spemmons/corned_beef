@@ -5,6 +5,11 @@ ActiveRecord::Schema.define do
     t.string    :field_string
     t.text      :extras
   end
+
+  create_table  :time_testers do |t|
+    t.text      :extras
+    t.timestamps
+  end
 end
 
 # Pseudo models for testing purposes
@@ -19,4 +24,10 @@ class DatabaseTester < ActiveRecord::Base
   corned_beef_string_accessor   :extra_string
   corned_beef_array_accessor    :extra_array
   corned_beef_hash_accessor     :extra_hash
+end
+
+class TimeTester < ActiveRecord::Base
+  include CornedBeef::Model
+
+  set_corned_beef_hash_alias    :extras
 end

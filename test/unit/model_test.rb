@@ -80,7 +80,7 @@ module CornedBeef
       attributes = @fields.merge(@extras)
       tester = DatabaseTester.new(extras: attributes)
 
-      2.times do
+      2.times do |pass_number|
         assert_equal attributes.dup.with_indifferent_access,tester.to_hash
         assert_equal %[{"extra_integer":3,"extra_float":4.0,"extra_string":"extra","extra_array":[5,6,7],"extra_hash":{"nine":9,"ten":10},"extra_other":"other","field_float":2.0,"field_integer":1,"field_string":"field","id":123}],tester.to_json
         assert_equal %[---\nextra_integer: 3\nextra_float: 4.0\nextra_string: extra\nextra_array:\n- 5\n- 6\n- 7\nextra_hash:\n  nine: 9\n  ten: 10\nextra_other: other\nfield_float: 2.0\nfield_integer: 1\nfield_string: field\nid: 123\n],tester.to_yaml
@@ -111,6 +111,46 @@ module CornedBeef
 
       tester.extra_integer = 1
       assert_equal 1,tester.extra_integer
+      assert_equal %w(extras),tester.changed
+      assert tester.save
+      assert_equal "---\nextra_integer: 1\n",DatabaseTester.connection.select_value("select extras from #{DatabaseTester.table_name} where id = #{tester.id}")
+
+      tester = DatabaseTester.find tester.id
+      assert_equal 1,tester.extra_integer
+      assert_equal [],tester.changed
+      assert tester.save
+
+    end
+
+    should 'not update the database if no changes to the corned_beef_hash are made' do
+
+      explicit_time = Time.utc_time(2000,1,1)
+      tester = TimeTester.new
+      tester.updated_at = explicit_time
+      assert tester.save
+      assert_equal "--- {}\n",DatabaseTester.connection.select_value("select extras from #{TimeTester.table_name} where id = #{tester.id}")
+      assert_equal explicit_time,tester.updated_at
+
+      # no change
+      assert tester.save
+      assert_equal "--- {}\n",DatabaseTester.connection.select_value("select extras from #{TimeTester.table_name} where id = #{tester.id}")
+      assert_equal explicit_time,tester.updated_at
+
+      tester.extras['test'] = 1
+      assert tester.save
+      assert_equal "---\ntest: 1\n",DatabaseTester.connection.select_value("select extras from #{TimeTester.table_name} where id = #{tester.id}")
+      assert_not_equal explicit_time,tester.updated_at
+
+      # reset timestamp
+      tester.updated_at = explicit_time
+      assert tester.save
+      assert_equal "---\ntest: 1\n",DatabaseTester.connection.select_value("select extras from #{TimeTester.table_name} where id = #{tester.id}")
+      assert_equal explicit_time,tester.updated_at
+
+      # no change
+      assert tester.save
+      assert_equal "---\ntest: 1\n",DatabaseTester.connection.select_value("select extras from #{TimeTester.table_name} where id = #{tester.id}")
+      assert_equal explicit_time,tester.updated_at
 
     end
 
