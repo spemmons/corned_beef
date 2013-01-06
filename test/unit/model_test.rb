@@ -154,6 +154,20 @@ module CornedBeef
 
     end
 
+    should 'respect validators' do
+      tester = DatabaseTester.new
+      assert tester.valid?
+      assert_equal [],tester.errors.to_a
+
+      tester.extra_string = 'test'
+      assert tester.valid?
+      assert_equal [],tester.errors.to_a
+
+      tester.extra_string = 'ABC'
+      assert !tester.valid?
+      assert_equal ['Extra string may only be lowercase letters'],tester.errors.to_a
+    end
+
   end
 
 end
