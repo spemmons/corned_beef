@@ -165,7 +165,7 @@ module CornedBeef
 
       tester.extra_string = 'ABC'
       assert !tester.valid?
-      assert_equal ['Extra string may only be lowercase letters'],tester.errors.to_a
+      assert_equal ['Extra string may not have uppercase letters'],tester.errors.to_a
     end
 
   end

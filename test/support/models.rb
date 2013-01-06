@@ -25,7 +25,7 @@ class DatabaseTester < ActiveRecord::Base
   corned_beef_array_accessor    :extra_array
   corned_beef_hash_accessor     :extra_hash
 
-  validates_format_of :extra_string, :message => 'may only be lowercase letters', :with => /^[a-z]*$/
+  validates_format_of :extra_string, :message => 'may not have uppercase letters', :with => /^[^A-Z]*$/
 end
 
 class TimeTester < ActiveRecord::Base
