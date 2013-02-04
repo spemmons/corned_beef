@@ -46,6 +46,30 @@ module CornedBeef
       assert_equal 123,tester.accessor
     end
 
+    context 'for hash types' do
+      should 'support specifying hash accessors' do
+        AttributeTester.corned_beef_accessor 'hash',type: :hash,default: {},required: true
+        assert AttributeTester.corned_beef_attributes.include?('hash')
+        assert_equal 'as_hash',Conversions.conversion_method_for_type('hash').to_s
+
+        tester = AttributeTester.new
+        assert_equal ({}),tester.hash
+        assert_not_equal tester.hash.object_id,tester.default_hash.object_id
+      end
+    end
+
+    context 'for array types' do
+      should 'support specifying array accessors' do
+        AttributeTester.corned_beef_accessor 'array',type: :array,default: [],required: true
+        assert AttributeTester.corned_beef_attributes.include?('array')
+        assert_equal 'as_array',Conversions.conversion_method_for_type('array').to_s
+
+        tester = AttributeTester.new
+        assert_equal [],tester.array
+        assert_not_equal tester.array.object_id,tester.default_array.object_id
+      end
+    end
+
     [:integer,:float,:string].each do |type|
       context "for #{type} types" do
         should "support specifying #{type} accessors" do

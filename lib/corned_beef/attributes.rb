@@ -41,7 +41,7 @@ module CornedBeef
         conversion_method = Conversions.conversion_method_for_type(type)
 
         corned_beef_defaults[attribute] = (required || !default_value.nil?) ? Conversions.send(conversion_method,default_value) : nil
-        class_eval %[def default_#{attribute}; self.class.corned_beef_defaults['#{attribute}']; end]
+        class_eval %[def default_#{attribute}; (value = self.class.corned_beef_defaults['#{attribute}']).dup rescue value; end]
         class_eval %[def #{attribute}; corned_beef_read_attribute('#{attribute}',:#{conversion_method}); end]
       end
     end
