@@ -43,7 +43,7 @@ module CornedBeef
 
       def initialize(attributes = nil)
         super(attributes)
-        valid?
+        update_corned_beef_hash
       end
 
       def corned_beef_matches?(hash)
