@@ -31,7 +31,9 @@ module CornedBeef
             if partial_updates?
               super(changed | ((attributes.keys & self.class.serialized_attributes.keys) - corned_beef_hashes))
             else
+              # :nocov: add a test when we know how this can happen...
               super
+              # :nocov:
             end
           end
         end
@@ -63,7 +65,9 @@ module CornedBeef
           when Hash
             result = self.corned_beef_hash = result.with_indifferent_access
           else
+            # :nocov: add a test when we know how this can happen...
             raise "corned_beef_hash must be Hash but is #{result.class}"
+            # :nocov:
         end
 
         @corned_beef_hash = result
