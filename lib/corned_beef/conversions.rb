@@ -2,7 +2,7 @@ module CornedBeef
 
   module Conversions
 
-    SUPPORTED_CONVERSIONS = [:integer,:float,:string,:array,:hash]
+    SUPPORTED_CONVERSIONS = [:integer,:float,:boolean,:string,:array,:hash]
 
     def Object.corned_beef_conversion_method; :as_is; end
     def Integer.corned_beef_conversion_method; :as_integer; end
@@ -16,6 +16,8 @@ module CornedBeef
       case type
         when nil
           :as_is
+        when :boolean,'boolean'
+          :as_boolean
         when Class
           type.corned_beef_conversion_method
         else
@@ -39,6 +41,10 @@ module CornedBeef
       value.to_f
     rescue
       0.0
+    end
+
+    def self.as_boolean(value)
+      !!value
     end
 
     def self.as_string(value)

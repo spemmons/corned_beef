@@ -33,7 +33,11 @@ module CornedBeef
     should 'find as_is for nil' do
       assert_equal :as_is,Conversions.conversion_method_for_type(nil)
     end
-    
+
+    should 'find as_boolean for symbol :boolean' do
+      assert_equal :as_boolean,Conversions.conversion_method_for_type(:boolean)
+    end
+
     should 'find as_integer for Integer or integer symbol' do
       assert_equal :as_integer,Conversions.conversion_method_for_type(Integer)
       assert_equal :as_integer,Conversions.conversion_method_for_type(:integer)
@@ -116,6 +120,20 @@ module CornedBeef
             0.0,
             0.0,
           ],@values.collect{|value| Conversions.as_float(value)}
+      end
+
+      should 'become true/false' do
+        assert_equal [
+            false,
+            true,
+            false,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+          ],@values.collect{|value| Conversions.as_boolean(value)}
       end
 
       should 'become strings' do

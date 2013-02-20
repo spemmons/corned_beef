@@ -8,42 +8,85 @@ module CornedBeef
       class AttributeTester; include CornedBeef::Attributes; end
     end
 
-    should 'throw an error if included after CornedBeef::Model' do
+    context 'for general cases' do
+      should 'throw an error if included after CornedBeef::Model' do
 
-      error = assert_raises(RuntimeError) do
-        class ModelErrorTest < ActiveRecord::Base
-          set_table_name :database_testers
-          include Model
-          include Attributes
+        error = assert_raises(RuntimeError) do
+          class ModelErrorTest < ActiveRecord::Base
+            set_table_name :database_testers
+            include Model
+            include Attributes
+          end
         end
-      end
-      assert_equal 'CornedBeef::Model already defined - including CornedBeef::Attributes not required',error.message
+        assert_equal 'CornedBeef::Model already defined - including CornedBeef::Attributes not required',error.message
 
+      end
+
+      should 'throw an error if included after CornedBeef::Seeds' do
+
+        error = assert_raises(RuntimeError) do
+          class SeedsErrorTest < ActiveRecord::Base
+            set_table_name :database_testers
+            include Seeds
+            include Attributes
+          end
+        end
+        assert_equal 'CornedBeef::Model already defined - including CornedBeef::Attributes not required',error.message
+
+      end
+
+      should 'support defining accessors' do
+        AttributeTester.corned_beef_accessor :accessor
+        assert AttributeTester.corned_beef_attributes.include?('accessor')
+
+        tester = AttributeTester.new
+        assert_nil tester.accessor
+        assert_nil tester.default_accessor
+
+        tester.accessor = 123
+        assert_equal 123,tester.accessor
+      end
     end
 
-    should 'throw an error if included after CornedBeef::Seeds' do
+    context 'for booleans' do
+      should 'ensure proper conversion when no default' do
+        AttributeTester.corned_beef_accessor 'boolean_no_default',type: :boolean,required: true
+        assert AttributeTester.corned_beef_attributes.include?('boolean_no_default')
 
-      error = assert_raises(RuntimeError) do
-        class SeedsErrorTest < ActiveRecord::Base
-          set_table_name :database_testers
-          include Seeds
-          include Attributes
-        end
+        tester = AttributeTester.new
+        assert_equal false,tester.boolean_no_default
+        assert_equal false,tester.boolean_no_default?
+
+        tester.boolean_no_default = false
+        assert_equal false,tester.boolean_no_default
+
+        tester.boolean_no_default = nil
+        assert_equal false,tester.boolean_no_default
+
+        tester.boolean_no_default = 'test'
+        assert_equal true,tester.boolean_no_default
       end
-      assert_equal 'CornedBeef::Model already defined - including CornedBeef::Attributes not required',error.message
 
-    end
+      should 'ensure proper conversion when with default' do
+        AttributeTester.corned_beef_accessor 'boolean_with_default',type: :boolean,default: true,required: true
+        assert AttributeTester.corned_beef_attributes.include?('boolean_with_default')
 
-    should 'support defining accessors' do
-      AttributeTester.corned_beef_accessor :accessor
-      assert_equal %w(accessor),AttributeTester.corned_beef_attributes
+        tester = AttributeTester.new
+        assert_equal true,tester.boolean_with_default
+        assert_equal true,tester.boolean_with_default?
 
-      tester = AttributeTester.new
-      assert_nil tester.accessor
-      assert_nil tester.default_accessor
+        tester.boolean_with_default = false
+        assert_equal false,tester.boolean_with_default
+        
+        tester.boolean_with_default = nil
+        assert_equal true,tester.boolean_with_default
 
-      tester.accessor = 123
-      assert_equal 123,tester.accessor
+        tester.boolean_with_default = false
+        assert_equal false,tester.boolean_with_default
+
+        tester.boolean_with_default = 'test'
+        assert_equal true,tester.boolean_with_default
+      end
     end
 
     context 'for hash types' do
@@ -70,7 +113,7 @@ module CornedBeef
       end
     end
 
-    [:integer,:float,:string].each do |type|
+    [:integer,:float,:string,:boolean].each do |type|
       context "for #{type} types" do
         should "support specifying #{type} accessors" do
           AttributeTester.corned_beef_accessor type,type: type,default: 1,required: true

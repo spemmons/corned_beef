@@ -11,12 +11,16 @@ module CornedBeef
         id:             123,
         field_integer:  1,
         field_float:    2.0,
+        field_true:     nil,
+        field_false:    nil,
         field_string:   'field',
       }
       @nine_ten = {nine: 9,ten: 10}
       @extras = {
           extra_integer:  3,
           extra_float:    4.0,
+          extra_true:     true,
+          extra_false:    false,
           extra_string:   'extra',
           extra_array:    [5,6,7],
           extra_hash:     @nine_ten,
@@ -40,9 +44,13 @@ module CornedBeef
             assert_equal 123,     tester.id
             assert_equal 1,       tester.field_integer
             assert_equal 2.0,     tester.field_float
-            assert_equal 3,       tester.extra_integer
+            assert_equal nil,    tester.field_true
+            assert_equal nil,   tester.field_false
             assert_equal 'field', tester.field_string
+            assert_equal 3,       tester.extra_integer
             assert_equal 4.0,     tester.extra_float
+            assert_equal true,    tester.extra_true
+            assert_equal false,   tester.extra_false
             assert_equal 'extra', tester.extra_string
             assert_equal [5,6,7], tester.extra_array
             assert_equal 'other', tester.extras[:extra_other]
@@ -61,9 +69,11 @@ module CornedBeef
     end
 
     should 'match corned_beef_hash values' do
-      tester = DatabaseTester.new(extras: {extra_integer: 1,extra_string: 'extra',extra_array: [1,2,3],extra_hash: {test: 4}})
+      tester = DatabaseTester.new(extras: {extra_integer: 1,extra_true: true,extra_false: false,extra_string: 'extra',extra_array: [1,2,3],extra_hash: {test: 4}})
 
       assert tester.corned_beef_matches?(extra_integer: 1)
+      assert tester.corned_beef_matches?(extra_true: true)
+      assert tester.corned_beef_matches?(extra_false: false)
       assert tester.corned_beef_matches?(extra_string: 'extra')
       assert tester.corned_beef_matches?(extra_array: [1,2,3])
       assert tester.corned_beef_matches?(extra_hash: {'test' => 4})
@@ -81,13 +91,13 @@ module CornedBeef
       tester = DatabaseTester.new(extras: attributes)
 
       2.times do |pass_number|
-        assert_equal attributes.dup.with_indifferent_access,tester.to_hash
-        assert_equal %[{"extra_integer":3,"extra_float":4.0,"extra_string":"extra","extra_array":[5,6,7],"extra_hash":{"nine":9,"ten":10},"extra_other":"other","field_float":2.0,"field_integer":1,"field_string":"field","id":123}],tester.to_json
-        assert_equal %[---\nextra_integer: 3\nextra_float: 4.0\nextra_string: extra\nextra_array:\n- 5\n- 6\n- 7\nextra_hash:\n  nine: 9\n  ten: 10\nextra_other: other\nfield_float: 2.0\nfield_integer: 1\nfield_string: field\nid: 123\n],tester.to_yaml
+        assert_equal attributes.dup.with_indifferent_access,tester.to_hash,"PASS: #{pass_number}"
+        assert_equal %[{"extra_integer":3,"extra_float":4.0,"extra_true":true,"extra_false":false,"extra_string":"extra","extra_array":[5,6,7],"extra_hash":{"nine":9,"ten":10},"extra_other":"other","field_false":null,"field_float":2.0,"field_integer":1,"field_string":"field","field_true":null,"id":123}],tester.to_json,"PASS: #{pass_number}"
+        assert_equal %[---\nextra_integer: 3\nextra_float: 4.0\nextra_true: true\nextra_false: false\nextra_string: extra\nextra_array:\n- 5\n- 6\n- 7\nextra_hash:\n  nine: 9\n  ten: 10\nextra_other: other\nfield_false: !!null \nfield_float: 2.0\nfield_integer: 1\nfield_string: field\nfield_true: !!null \nid: 123\n],tester.to_yaml,"PASS: #{pass_number}"
 
         assert tester.save
 
-        assert_not_nil tester = DatabaseTester.find_by_id(tester.id)
+        assert_not_nil(tester = DatabaseTester.find_by_id(tester.id),"PASS: #{pass_number}")
       end
     end
 

@@ -3,6 +3,8 @@ ActiveRecord::Schema.define do
     t.integer   :field_integer
     t.float     :field_float
     t.string    :field_string
+    t.integer   :field_true
+    t.integer   :field_false
     t.text      :extras
   end
 
@@ -22,6 +24,8 @@ class DatabaseTester < ActiveRecord::Base
   corned_beef_integer_accessor  :extra_integer
   corned_beef_float_accessor    :extra_float
   corned_beef_string_accessor   :extra_string
+  corned_beef_boolean_accessor  :extra_true
+  corned_beef_boolean_accessor  :extra_false
   corned_beef_array_accessor    :extra_array
   corned_beef_hash_accessor     :extra_hash
 
