@@ -3,16 +3,12 @@ module CornedBeef
   module Relation
     extend ActiveSupport::Concern
 
-    module InstanceMethods
+    def corned_beef_find(hash)
+      self.detect{|record| record.corned_beef_matches?(hash)}
+    end
 
-      def corned_beef_find(hash)
-        self.detect{|record| record.corned_beef_matches?(hash)}
-      end
-
-      def corned_beef_where(hash)
-        self.select{|record| record.corned_beef_matches?(hash)}
-      end
-
+    def corned_beef_where(hash)
+      self.select{|record| record.corned_beef_matches?(hash)}
     end
 
   end
