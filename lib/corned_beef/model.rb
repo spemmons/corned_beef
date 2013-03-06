@@ -35,6 +35,16 @@ module CornedBeef
             end
           end
         end
+
+        ::ActiveRecord::Timestamp.class_eval do
+          def corned_beef_hashes
+            respond_to?(:corned_beef_hash_alias) ? [corned_beef_hash_alias.to_s] : []
+          end
+
+          def should_record_timestamps?
+            self.record_timestamps && (!partial_updates? || changed? || ((attributes.keys & self.class.serialized_attributes.keys) - corned_beef_hashes).present?)
+          end
+        end
       end
 
     end

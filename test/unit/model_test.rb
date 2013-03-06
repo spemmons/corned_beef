@@ -92,8 +92,6 @@ module CornedBeef
 
       2.times do |pass_number|
         assert_equal attributes.dup.with_indifferent_access,tester.to_hash,"PASS: #{pass_number}"
-        assert_equal %[{"extra_integer":3,"extra_float":4.0,"extra_true":true,"extra_false":false,"extra_string":"extra","extra_array":[5,6,7],"extra_hash":{"nine":9,"ten":10},"extra_other":"other","field_false":null,"field_float":2.0,"field_integer":1,"field_string":"field","field_true":null,"id":123}],tester.to_json,"PASS: #{pass_number}"
-        assert_equal %[---\nextra_integer: 3\nextra_float: 4.0\nextra_true: true\nextra_false: false\nextra_string: extra\nextra_array:\n- 5\n- 6\n- 7\nextra_hash:\n  nine: 9\n  ten: 10\nextra_other: other\nfield_false: !!null \nfield_float: 2.0\nfield_integer: 1\nfield_string: field\nfield_true: !!null \nid: 123\n],tester.to_yaml,"PASS: #{pass_number}"
 
         assert tester.save
 
@@ -121,12 +119,31 @@ module CornedBeef
 
       tester.extra_integer = 1
       assert_equal 1,tester.extra_integer
+      assert_equal [],tester.changed
+      assert tester.valid?
       assert_equal %w(extras),tester.changed
       assert tester.save
       assert_equal "---\nextra_integer: 1\n",DatabaseTester.connection.select_value("select extras from #{DatabaseTester.table_name} where id = #{tester.id}")
 
       tester = DatabaseTester.find tester.id
       assert_equal 1,tester.extra_integer
+      assert_equal [],tester.changed
+      assert tester.valid?
+      assert_equal [],tester.changed
+      assert tester.save
+
+      tester.extra_integer = 2
+      assert_equal 2,tester.extra_integer
+      assert_equal [],tester.changed
+      assert tester.valid?
+      assert_equal %w(extras),tester.changed
+      assert tester.save
+      assert_equal "---\nextra_integer: 2\n",DatabaseTester.connection.select_value("select extras from #{DatabaseTester.table_name} where id = #{tester.id}")
+
+      tester = DatabaseTester.find tester.id
+      assert_equal 2,tester.extra_integer
+      assert_equal [],tester.changed
+      assert tester.valid?
       assert_equal [],tester.changed
       assert tester.save
 
