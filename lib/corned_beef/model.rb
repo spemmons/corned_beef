@@ -16,6 +16,7 @@ module CornedBeef
         serialize @corned_beef_hash_alias,Hash
 
         class_eval %[def #{attribute}; corned_beef_hash; end]
+        class_eval %[def #{attribute}=(value); self.corned_beef_hash = value; end]
 
         after_initialize :update_corned_beef_hash
         before_validation :update_corned_beef_hash

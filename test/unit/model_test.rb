@@ -36,10 +36,14 @@ module CornedBeef
         tester1.corned_beef_hash = attributes
         assert_equal @extras.dup.with_indifferent_access,tester1.extras
 
-        tester2 = DatabaseTester.new(extras: attributes)
+        tester2 = DatabaseTester.new
+        tester2.extras = attributes
         assert_equal @extras.dup.with_indifferent_access,tester2.extras
 
-        [tester1,tester2].each do |tester|
+        tester3 = DatabaseTester.new(extras: attributes)
+        assert_equal @extras.dup.with_indifferent_access,tester3.extras
+
+        [tester1,tester2,tester3].each do |tester|
           2.times do
             assert_equal 123,     tester.id
             assert_equal 1,       tester.field_integer
