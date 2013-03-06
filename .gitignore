@@ -5,6 +5,7 @@ coverage/
 pkg/
 rdoc/
 log/*.log
+test/log/*.log
 test/dummy/db/*.sqlite3
 test/dummy/log/*.log
 test/dummy/tmp/
