@@ -9,32 +9,6 @@ module CornedBeef
     end
 
     context 'for general cases' do
-      should 'throw an error if included after CornedBeef::Model' do
-
-        error = assert_raises(RuntimeError) do
-          class ModelErrorTest < ActiveRecord::Base
-            set_table_name :database_testers
-            include Model
-            include Attributes
-          end
-        end
-        assert_equal 'CornedBeef::Model already defined - including CornedBeef::Attributes not required',error.message
-
-      end
-
-      should 'throw an error if included after CornedBeef::Seeds' do
-
-        error = assert_raises(RuntimeError) do
-          class SeedsErrorTest < ActiveRecord::Base
-            set_table_name :database_testers
-            include Seeds
-            include Attributes
-          end
-        end
-        assert_equal 'CornedBeef::Model already defined - including CornedBeef::Attributes not required',error.message
-
-      end
-
       should 'support defining accessors' do
         AttributeTester.corned_beef_accessor :accessor
         assert AttributeTester.corned_beef_attributes.include?('accessor')

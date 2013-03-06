@@ -1,14 +1,10 @@
 module CornedBeef
   
   module Attributes
+    extend ActiveSupport::Concern
 
-    def self.included(base)
-      raise 'CornedBeef::Model already defined - including CornedBeef::Attributes not required' if base.respond_to?(:corned_beef_hash_alias)
-      base.extend ClassMethods
-      base.send :include,InstanceMethods
-    end
-  
     module ClassMethods
+
       def corned_beef_attribute?(attribute)
         corned_beef_defaults.has_key?(attribute)
       end
@@ -47,62 +43,58 @@ module CornedBeef
       end
     end
 
-    module InstanceMethods
+    def corned_beef_get_attribute(attribute)
+      attribute = attribute.to_s
+      self.class.corned_beef_attribute?(attribute) ? send(attribute) : corned_beef_hash[attribute]
+    end
 
-      def corned_beef_get_attribute(attribute)
-        attribute = attribute.to_s
-        self.class.corned_beef_attribute?(attribute) ? send(attribute) : corned_beef_hash[attribute]
-      end
+    def corned_beef_set_attribute(attribute,value)
+      attribute = attribute.to_s
+      self.class.corned_beef_attribute?(attribute) ? send("#{attribute}=",value) : (corned_beef_hash[attribute] = value)
+    end
 
-      def corned_beef_set_attribute(attribute,value)
-        attribute = attribute.to_s
-        self.class.corned_beef_attribute?(attribute) ? send("#{attribute}=",value) : (corned_beef_hash[attribute] = value)
-      end
+    def corned_beef_set_attributes(hash)
+      hash.each{|pair| corned_beef_set_attribute(*pair)}
+    end
 
-      def corned_beef_set_attributes(hash)
-        hash.each{|pair| corned_beef_set_attribute(*pair)}
-      end
+    def corned_beef_hash
+      @corned_beef_hash ||= {}.with_indifferent_access
+    end
 
-      def corned_beef_hash
-        @corned_beef_hash ||= {}.with_indifferent_access
-      end
+    def corned_beef_hash=(hash)
+      self.class.corned_beef_attributes.each{|attribute| corned_beef_reset_attribute(attribute)}
+      @corned_beef_hash = hash && hash.with_indifferent_access
+    end
 
-      def corned_beef_hash=(hash)
-        self.class.corned_beef_attributes.each{|attribute| corned_beef_reset_attribute(attribute)}
-        @corned_beef_hash = hash && hash.with_indifferent_access
-      end
+    def corned_beef_attribute_set?(attribute)
+      eval %[@#{attribute}_set]
+    end
 
-      def corned_beef_attribute_set?(attribute)
-        eval %[@#{attribute}_set]
-      end
+  private
 
-    private
+    def corned_beef_reset_attribute(attribute)
+      eval %[@#{attribute}_set = false]
+    end
 
-      def corned_beef_reset_attribute(attribute)
-        eval %[@#{attribute}_set = false]
-      end
+    def corned_beef_read_attribute(attribute,conversion_method)
+      unless corned_beef_attribute_set?(attribute)
+        eval %[@#{attribute}_set = true]
 
-      def corned_beef_read_attribute(attribute,conversion_method)
-        unless corned_beef_attribute_set?(attribute)
-          eval %[@#{attribute}_set = true]
-
-          if (value = corned_beef_hash[attribute]).nil?
-            value = self.send("default_#{attribute}")
-          else
-            value = Conversions.send(conversion_method,value)
-          end
-
-          eval %[@#{attribute}_value = value]
+        if (value = corned_beef_hash[attribute]).nil?
+          value = self.send("default_#{attribute}")
+        else
+          value = Conversions.send(conversion_method,value)
         end
 
-        eval %[@#{attribute}_value]
+        eval %[@#{attribute}_value = value]
       end
 
-      def corned_beef_write_attribute(attribute,value)
-        corned_beef_reset_attribute(attribute)
-        corned_beef_hash[attribute] = value == self.send("default_#{attribute}") ? nil : value
-      end
+      eval %[@#{attribute}_value]
+    end
 
+    def corned_beef_write_attribute(attribute,value)
+      corned_beef_reset_attribute(attribute)
+      corned_beef_hash[attribute] = value == self.send("default_#{attribute}") ? nil : value
     end
 
   end
