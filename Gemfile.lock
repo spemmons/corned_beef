@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    corned_beef (0.0.2)
+    corned_beef (0.0.3)
       rails
 
 GEM
