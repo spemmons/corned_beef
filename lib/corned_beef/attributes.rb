@@ -62,38 +62,16 @@ module CornedBeef
     end
 
     def corned_beef_hash=(hash)
-      self.class.corned_beef_attributes.each{|attribute| corned_beef_reset_attribute(attribute)}
       @corned_beef_hash = hash && hash.with_indifferent_access
-    end
-
-    def corned_beef_attribute_set?(attribute)
-      eval %[@#{attribute}_set]
     end
 
   private
 
-    def corned_beef_reset_attribute(attribute)
-      eval %[@#{attribute}_set = false]
-    end
-
     def corned_beef_read_attribute(attribute,conversion_method)
-      unless corned_beef_attribute_set?(attribute)
-        eval %[@#{attribute}_set = true]
-
-        if (value = corned_beef_hash[attribute]).nil?
-          value = self.send("default_#{attribute}")
-        else
-          value = Conversions.send(conversion_method,value)
-        end
-
-        eval %[@#{attribute}_value = value]
-      end
-
-      eval %[@#{attribute}_value]
+      (value = corned_beef_hash[attribute]).nil? ? self.send("default_#{attribute}") : Conversions.send(conversion_method,value)
     end
 
     def corned_beef_write_attribute(attribute,value)
-      corned_beef_reset_attribute(attribute)
       corned_beef_hash[attribute] = value == self.send("default_#{attribute}") ? nil : value
     end
 

@@ -185,6 +185,40 @@ module CornedBeef
 
     end
 
+    should 'ensure that 2nd level changes to a hash are captured' do
+      tester = DatabaseTester.new
+      assert_equal ({}),tester.corned_beef_hash
+      assert_equal ({}),tester.extras
+
+      tester.corned_beef_hash[:extras] = {level1A: 'A'}
+      assert tester.save
+
+      tester = DatabaseTester.find tester.id
+      assert_equal ({'level1A' => 'A'}),tester.corned_beef_hash
+      assert_equal ({'level1A' => 'A'}),tester.extras
+
+      tester.extras[:level1B] = 'B'
+      assert tester.save
+
+      tester = DatabaseTester.find tester.id
+      assert_equal ({'level1A' => 'A','level1B' => 'B'}),tester.corned_beef_hash
+      assert_equal ({'level1A' => 'A','level1B' => 'B'}),tester.extras
+
+      tester.corned_beef_hash[:level1A] = {level2A: 'C'}
+      assert tester.save
+
+      tester = DatabaseTester.find tester.id
+      assert_equal ({'level1A' => {'level2A' => 'C'},'level1B' => 'B'}),tester.corned_beef_hash
+      assert_equal ({'level1A' => {'level2A' => 'C'},'level1B' => 'B'}),tester.extras
+      
+      tester.corned_beef_hash[:level1B] = {level2B: 'D'}
+      assert tester.save
+
+      tester = DatabaseTester.find tester.id
+      assert_equal ({'level1A' => {'level2A' => 'C'},'level1B' => {'level2B' => 'D'}}),tester.corned_beef_hash
+      assert_equal ({'level1A' => {'level2A' => 'C'},'level1B' => {'level2B' => 'D'}}),tester.extras
+    end
+
     should 'respect validators' do
       tester = DatabaseTester.new
       assert tester.valid?

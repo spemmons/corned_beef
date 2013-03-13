@@ -1,6 +1,6 @@
 Gem::Specification.new do |gem|
   gem.name            = 'corned_beef'
-  gem.version         = '0.0.2'
+  gem.version         = '0.0.3'
 
   gem.summary         = 'Support ActiveRecord models based on YAML files, JSON object, ... and Hash!'
   gem.email           = 'semmons@numerex.com'
