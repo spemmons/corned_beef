@@ -211,12 +211,20 @@ module CornedBeef
       assert_equal ({'level1A' => {'level2A' => 'C'},'level1B' => 'B'}),tester.corned_beef_hash
       assert_equal ({'level1A' => {'level2A' => 'C'},'level1B' => 'B'}),tester.extras
       
-      tester.corned_beef_hash[:level1B] = {level2B: 'D'}
+      tester.extras[:level1B] = {level2B: 'D'}
       assert tester.save
 
       tester = DatabaseTester.find tester.id
       assert_equal ({'level1A' => {'level2A' => 'C'},'level1B' => {'level2B' => 'D'}}),tester.corned_beef_hash
       assert_equal ({'level1A' => {'level2A' => 'C'},'level1B' => {'level2B' => 'D'}}),tester.extras
+
+      # don't reload this time and ensure the 2nd save is also committed
+      tester.corned_beef_hash[:level1A][:level2A] = 'E'
+      assert tester.save
+
+      tester = DatabaseTester.find tester.id
+      assert_equal ({'level1A' => {'level2A' => 'E'},'level1B' => {'level2B' => 'D'}}),tester.corned_beef_hash
+      assert_equal ({'level1A' => {'level2A' => 'E'},'level1B' => {'level2B' => 'D'}}),tester.extras
     end
 
     should 'respect validators' do

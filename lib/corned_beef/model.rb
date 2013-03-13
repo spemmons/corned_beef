@@ -64,15 +64,15 @@ module CornedBeef
           when ActiveSupport::HashWithIndifferentAccess
             # do nothing
           when Hash
-            write_attribute(corned_beef_hash_alias,@corned_beef_hash = @corned_beef_hash.with_indifferent_access)
+            @corned_beef_hash = @corned_beef_hash.with_indifferent_access
           when nil
-            write_attribute(corned_beef_hash_alias,@corned_beef_hash = {}.with_indifferent_access)
+            @corned_beef_hash = {}.with_indifferent_access
           else
             # :nocov: add a test when we know how this can happen...
             raise "corned_beef_hash must be Hash but is #{@corned_beef_hash.class}"
           # :nocov:
         end
-        @original_corned_beef_hash ||= @corned_beef_hash.dup
+        @original_corned_beef_hash = YAML.load(@corned_beef_hash.to_yaml)
       end
       @corned_beef_hash
     end
@@ -81,7 +81,13 @@ module CornedBeef
       @corned_beef_hash = hash.dup.with_indifferent_access
       (@corned_beef_hash.keys & self.class.columns.collect(&:name)).each {|column_name| eval %[self.#{column_name} = @corned_beef_hash.delete(column_name)]}
       self.class.corned_beef_defaults.each{|attribute,default_value| @corned_beef_hash.delete(attribute) if @corned_beef_hash[attribute] == default_value}
-      write_attribute(corned_beef_hash_alias,@corned_beef_hash) if @corned_beef_hash != @original_corned_beef_hash
+
+      if @original_corned_beef_hash != (clean_hash = YAML.load(@corned_beef_hash.to_yaml))
+        write_attribute(corned_beef_hash_alias,clean_hash)
+        @corned_beef_hash = nil
+      end
+
+      corned_beef_hash
     end
 
     def to_hash
