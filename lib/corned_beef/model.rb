@@ -60,19 +60,9 @@ module CornedBeef
 
     def corned_beef_hash
       unless @corned_beef_hash
-        case @corned_beef_hash = read_attribute(corned_beef_hash_alias)
-          when ActiveSupport::HashWithIndifferentAccess
-            # do nothing
-          when Hash
-            @corned_beef_hash = @corned_beef_hash.with_indifferent_access
-          when nil
-            @corned_beef_hash = {}.with_indifferent_access
-          else
-            # :nocov: add a test when we know how this can happen...
-            raise "corned_beef_hash must be Hash but is #{@corned_beef_hash.class}"
-          # :nocov:
-        end
-        @original_corned_beef_hash = YAML.load(@corned_beef_hash.to_yaml)
+        current_yaml = (read_attribute(corned_beef_hash_alias) || {}).to_yaml
+        @corned_beef_hash = YAML.load(current_yaml).with_indifferent_access
+        @original_corned_beef_hash = YAML.load(current_yaml)
       end
       @corned_beef_hash
     end
@@ -84,6 +74,7 @@ module CornedBeef
 
       if @original_corned_beef_hash != (clean_hash = YAML.load(@corned_beef_hash.to_yaml))
         write_attribute(corned_beef_hash_alias,clean_hash)
+        raise 'corned_beef_hash should be changed' unless changes[corned_beef_hash_alias]
         @corned_beef_hash = nil
       end
 
