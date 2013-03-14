@@ -159,12 +159,12 @@ module CornedBeef
       tester = TimeTester.new
       tester.updated_at = explicit_time
       assert tester.save
-      assert_equal "--- {}\n",DatabaseTester.connection.select_value("select extras from #{TimeTester.table_name} where id = #{tester.id}")
+      assert_equal nil,DatabaseTester.connection.select_value("select extras from #{TimeTester.table_name} where id = #{tester.id}")
       assert_equal explicit_time,tester.updated_at
 
       # no change
       assert tester.save
-      assert_equal "--- {}\n",DatabaseTester.connection.select_value("select extras from #{TimeTester.table_name} where id = #{tester.id}")
+      assert_equal nil,DatabaseTester.connection.select_value("select extras from #{TimeTester.table_name} where id = #{tester.id}")
       assert_equal explicit_time,tester.updated_at
 
       tester.extras['test'] = 1
@@ -190,7 +190,7 @@ module CornedBeef
       assert_equal ({}),tester.corned_beef_hash
       assert_equal ({}),tester.extras
 
-      tester.corned_beef_hash[:extras] = {level1A: 'A'}
+      tester.corned_beef_hash[:level1A] = 'A'
       assert tester.save
 
       tester = DatabaseTester.find tester.id
@@ -218,13 +218,19 @@ module CornedBeef
       assert_equal ({'level1A' => {'level2A' => 'C'},'level1B' => {'level2B' => 'D'}}),tester.corned_beef_hash
       assert_equal ({'level1A' => {'level2A' => 'C'},'level1B' => {'level2B' => 'D'}}),tester.extras
 
-      # don't reload this time and ensure the 2nd save is also committed
       tester.corned_beef_hash[:level1A][:level2A] = 'E'
       assert tester.save
 
       tester = DatabaseTester.find tester.id
       assert_equal ({'level1A' => {'level2A' => 'E'},'level1B' => {'level2B' => 'D'}}),tester.corned_beef_hash
       assert_equal ({'level1A' => {'level2A' => 'E'},'level1B' => {'level2B' => 'D'}}),tester.extras
+
+      tester.extras[:level1B][:level2B] = 'F'
+      assert tester.save
+
+      tester = DatabaseTester.find tester.id
+      assert_equal ({'level1A' => {'level2A' => 'E'},'level1B' => {'level2B' => 'F'}}),tester.corned_beef_hash
+      assert_equal ({'level1A' => {'level2A' => 'E'},'level1B' => {'level2B' => 'F'}}),tester.extras
     end
 
     should 'respect validators' do

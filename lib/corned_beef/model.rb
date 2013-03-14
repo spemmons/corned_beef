@@ -13,39 +13,11 @@ module CornedBeef
 
       def set_corned_beef_hash_alias(attribute)
         @corned_beef_hash_alias = attribute.to_sym
-        serialize @corned_beef_hash_alias,Hash
 
         class_eval %[def #{attribute}; corned_beef_hash; end]
         class_eval %[def #{attribute}=(value); self.corned_beef_hash = value; end]
 
-        after_initialize :update_corned_beef_hash
         before_validation :update_corned_beef_hash
-
-        ::ActiveRecord::AttributeMethods::Dirty.class_eval do
-          def corned_beef_hashes
-            respond_to?(:corned_beef_hash_alias) ? [corned_beef_hash_alias.to_s] : []
-          end
-
-          def update(*)
-            if partial_updates?
-              super(changed | ((attributes.keys & self.class.serialized_attributes.keys) - corned_beef_hashes))
-            else
-              # :nocov: add a test when we know how this can happen...
-              super
-              # :nocov:
-            end
-          end
-        end
-
-        ::ActiveRecord::Timestamp.class_eval do
-          def corned_beef_hashes
-            respond_to?(:corned_beef_hash_alias) ? [corned_beef_hash_alias.to_s] : []
-          end
-
-          def should_record_timestamps?
-            self.record_timestamps && (!partial_updates? || changed? || ((attributes.keys & self.class.serialized_attributes.keys) - corned_beef_hashes).present?)
-          end
-        end
       end
 
     end
@@ -60,7 +32,7 @@ module CornedBeef
 
     def corned_beef_hash
       unless @corned_beef_hash
-        current_yaml = (read_attribute(corned_beef_hash_alias) || {}).to_yaml
+        current_yaml = read_attribute(corned_beef_hash_alias) || '--- {}'
         @corned_beef_hash = YAML.load(current_yaml).with_indifferent_access
         @original_corned_beef_hash = YAML.load(current_yaml)
       end
@@ -68,16 +40,16 @@ module CornedBeef
     end
 
     def corned_beef_hash=(hash)
-      @corned_beef_hash = hash.dup.with_indifferent_access rescue {}.with_indifferent_access
-      (@corned_beef_hash.keys & self.class.columns.collect(&:name)).each {|column_name| eval %[self.#{column_name} = @corned_beef_hash.delete(column_name)]}
-      self.class.corned_beef_defaults.each{|attribute,default_value| @corned_beef_hash.delete(attribute) if @corned_beef_hash[attribute] == default_value}
+      raise 'corned_beef_hash must be a kind of Hash' unless (hash = (hash || {}).dup.with_indifferent_access).kind_of?(Hash)
 
-      if @original_corned_beef_hash != (clean_hash = YAML.load(@corned_beef_hash.to_yaml))
-        write_attribute(corned_beef_hash_alias,clean_hash)
-        raise 'corned_beef_hash should be changed' unless changes[corned_beef_hash_alias]
-        @corned_beef_hash = nil
-      end
+      (hash.keys & self.class.columns.collect(&:name)).each {|column_name| eval %[self.#{column_name} = hash.delete(column_name)]}
+      self.class.corned_beef_defaults.each{|attribute,default_value| hash.delete(attribute) if hash[attribute] == default_value}
 
+      return @corned_beef_hash if @original_corned_beef_hash == YAML.load(persisted_yaml = hash.to_yaml)
+
+      write_attribute(corned_beef_hash_alias,persisted_yaml)
+      raise 'corned_beef_hash should be changed' unless changes[corned_beef_hash_alias]
+      @corned_beef_hash = nil
       corned_beef_hash
     end
 
@@ -95,7 +67,7 @@ module CornedBeef
     end
 
     def update_corned_beef_hash
-      self.corned_beef_hash = corned_beef_hash
+      self.corned_beef_hash = @corned_beef_hash if @corned_beef_hash
     end
 
   end
