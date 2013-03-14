@@ -78,7 +78,7 @@ module CornedBeef
     end
 
     def corned_beef_hash=(hash)
-      @corned_beef_hash = hash.dup.with_indifferent_access
+      @corned_beef_hash = hash.dup.with_indifferent_access rescue {}.with_indifferent_access
       (@corned_beef_hash.keys & self.class.columns.collect(&:name)).each {|column_name| eval %[self.#{column_name} = @corned_beef_hash.delete(column_name)]}
       self.class.corned_beef_defaults.each{|attribute,default_value| @corned_beef_hash.delete(attribute) if @corned_beef_hash[attribute] == default_value}
 
