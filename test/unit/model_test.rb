@@ -159,12 +159,12 @@ module CornedBeef
       tester = TimeTester.new
       tester.updated_at = explicit_time
       assert tester.save
-      assert_equal nil,DatabaseTester.connection.select_value("select extras from #{TimeTester.table_name} where id = #{tester.id}")
+      assert_equal "--- {}\n",DatabaseTester.connection.select_value("select extras from #{TimeTester.table_name} where id = #{tester.id}")
       assert_equal explicit_time,tester.updated_at
 
       # no change
       assert tester.save
-      assert_equal nil,DatabaseTester.connection.select_value("select extras from #{TimeTester.table_name} where id = #{tester.id}")
+      assert_equal "--- {}\n",DatabaseTester.connection.select_value("select extras from #{TimeTester.table_name} where id = #{tester.id}")
       assert_equal explicit_time,tester.updated_at
 
       tester.extras['test'] = 1

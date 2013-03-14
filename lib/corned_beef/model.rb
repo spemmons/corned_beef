@@ -30,13 +30,20 @@ module CornedBeef
       self.class.corned_beef_hash_alias || raise('no corned_beef_hash_alias defined')
     end
 
+    def read_attribute(name)
+      @inside_corned_beef_hash || name.to_s != corned_beef_hash_alias.to_s ? super : corned_beef_hash
+    end
+
     def corned_beef_hash
+      @inside_corned_beef_hash = true
       unless @corned_beef_hash
         current_yaml = read_attribute(corned_beef_hash_alias) || '--- {}'
         @corned_beef_hash = YAML.load(current_yaml).with_indifferent_access
         @original_corned_beef_hash = YAML.load(current_yaml)
       end
       @corned_beef_hash
+    ensure
+      @inside_corned_beef_hash = false
     end
 
     def corned_beef_hash=(hash)
