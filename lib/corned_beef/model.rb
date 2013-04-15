@@ -4,6 +4,8 @@ module CornedBeef
     extend ActiveSupport::Concern
 
     include Attributes unless respond_to?(:corned_beef_attributes)
+    include ActiveModel::AttributeMethods
+    include ActiveModel::Dirty
 
     module ClassMethods
 
@@ -18,6 +20,17 @@ module CornedBeef
         class_eval %[def #{attribute}=(value); self.corned_beef_hash = value; end]
 
         before_validation :update_corned_beef_hash
+      end
+
+  private
+
+      def corned_beef_define_accessor(attribute,type,default_value,required)
+        super
+        class_eval %[def #{attribute}_changed?; attribute_changed?('#{attribute}'); end]
+        class_eval %[def #{attribute}_change; attribute_change('#{attribute}'); end]
+        class_eval %[def #{attribute}_was; attribute_was('#{attribute}'); end]
+        class_eval %[def #{attribute}_change; attribute_change('#{attribute}'); end]
+        class_eval %[def reset_#{attribute}!; reset_attribute!('#{attribute}'); end]
       end
 
     end
@@ -58,6 +71,11 @@ module CornedBeef
       raise 'corned_beef_hash should be changed' unless changes[corned_beef_hash_alias]
       @corned_beef_hash = nil
       corned_beef_hash
+    end
+
+    def corned_beef_write_attribute(attribute,value)
+      attribute_will_change!(attribute)
+      super
     end
 
     def to_hash

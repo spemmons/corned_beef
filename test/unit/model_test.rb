@@ -121,11 +121,14 @@ module CornedBeef
       tester = DatabaseTester.new
       assert_nil tester.extra_integer
 
+      assert_equal [],tester.changed
       tester.extra_integer = 1
       assert_equal 1,tester.extra_integer
-      assert_equal [],tester.changed
+      assert_equal %w(extra_integer),tester.changed
+      assert tester.extra_integer_changed?
+      assert_equal nil,tester.extra_integer_was
       assert tester.valid?
-      assert_equal %w(extras),tester.changed
+      assert_equal %w(extra_integer extras),tester.changed
       assert tester.save
       assert_equal "---\nextra_integer: 1\n",DatabaseTester.connection.select_value("select extras from #{DatabaseTester.table_name} where id = #{tester.id}")
 
@@ -138,9 +141,11 @@ module CornedBeef
 
       tester.extra_integer = 2
       assert_equal 2,tester.extra_integer
-      assert_equal [],tester.changed
+      assert_equal %w(extra_integer),tester.changed
+      assert tester.extra_integer_changed?
+      assert_equal 1,tester.extra_integer_was
       assert tester.valid?
-      assert_equal %w(extras),tester.changed
+      assert_equal %w(extra_integer extras),tester.changed
       assert tester.save
       assert_equal "---\nextra_integer: 2\n",DatabaseTester.connection.select_value("select extras from #{DatabaseTester.table_name} where id = #{tester.id}")
 
@@ -231,6 +236,7 @@ module CornedBeef
       tester = DatabaseTester.find tester.id
       assert_equal ({'level1A' => {'level2A' => 'E'},'level1B' => {'level2B' => 'F'}}),tester.corned_beef_hash
       assert_equal ({'level1A' => {'level2A' => 'E'},'level1B' => {'level2B' => 'F'}}),tester.extras
+      assert_equal %(---\nlevel1A:\n  level2A: E\nlevel1B:\n  level2B: F\n),DatabaseTester.connection.select_value("select extras from #{DatabaseTester.table_name} where id = #{tester.id}")
     end
 
     should 'respect validators' do
