@@ -46,6 +46,11 @@ module CornedBeef
     def read_attribute(name)
       @inside_corned_beef_hash || name.to_s != corned_beef_hash_alias.to_s ? super : corned_beef_hash
     end
+    
+    def reload
+      @corned_beef_hash = nil
+      super
+    end
 
     def corned_beef_hash
       @inside_corned_beef_hash = true

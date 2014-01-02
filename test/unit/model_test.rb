@@ -27,6 +27,36 @@ module CornedBeef
           extra_other:    'other',
       }
     end
+    
+    should 'reload the hash properly for full extra' do
+      dt1 = DatabaseTester.create(extras: @extras)
+      
+      dt2 = DatabaseTester.first
+      
+      assert_equal dt1.extras, dt2.extras
+      
+      dt1.extra_integer = 5
+      dt1.save
+      
+      dt2.reload
+      
+      assert_equal dt1.extras, dt2.extras
+    end
+    
+    should 'reload the hash properly for nil extras' do
+      dt1 = DatabaseTester.create()
+      
+      dt2 = DatabaseTester.first
+      
+      assert_equal dt1.extras, dt2.extras
+      
+      dt1.extra_integer = 5
+      dt1.save
+      
+      dt2.reload
+      
+      assert_equal dt1.extras, dt2.extras
+    end
 
     should 'put attributes in their proper places' do
       assert_nothing_raised do
