@@ -27,6 +27,36 @@ module CornedBeef
           extra_other:    'other',
       }
     end
+    
+    should 'reload the hash properly for full extra' do
+      dt1 = DatabaseTester.create(extras: @extras)
+      
+      dt2 = DatabaseTester.first
+      
+      assert_equal dt1.extras, dt2.extras
+      
+      dt1.extra_integer = 5
+      dt1.save
+      
+      dt2.reload
+      
+      assert_equal dt1.extras, dt2.extras
+    end
+    
+    should 'reload the hash properly for nil extras' do
+      dt1 = DatabaseTester.create()
+      
+      dt2 = DatabaseTester.first
+      
+      assert_equal dt1.extras, dt2.extras
+      
+      dt1.extra_integer = 5
+      dt1.save
+      
+      dt2.reload
+      
+      assert_equal dt1.extras, dt2.extras
+    end
 
     should 'put attributes in their proper places' do
       assert_nothing_raised do
@@ -130,7 +160,7 @@ module CornedBeef
       assert tester.valid?
       assert_equal %w(extra_integer extras),tester.changed
       assert tester.save
-      assert_equal "---\nextra_integer: 1\n",DatabaseTester.connection.select_value("select extras from #{DatabaseTester.table_name} where id = #{tester.id}")
+      assert_equal YAML.load("---\nextra_integer: 1\n"),YAML.load(DatabaseTester.connection.select_value("select extras from #{DatabaseTester.table_name} where id = #{tester.id}"))
 
       tester = DatabaseTester.find tester.id
       assert_equal 1,tester.extra_integer
@@ -147,7 +177,7 @@ module CornedBeef
       assert tester.valid?
       assert_equal %w(extra_integer extras),tester.changed
       assert tester.save
-      assert_equal "---\nextra_integer: 2\n",DatabaseTester.connection.select_value("select extras from #{DatabaseTester.table_name} where id = #{tester.id}")
+      assert_equal YAML.load("---\nextra_integer: 2\n"),YAML.load(DatabaseTester.connection.select_value("select extras from #{DatabaseTester.table_name} where id = #{tester.id}"))
 
       tester = DatabaseTester.find tester.id
       assert_equal 2,tester.extra_integer
@@ -164,28 +194,28 @@ module CornedBeef
       tester = TimeTester.new
       tester.updated_at = explicit_time
       assert tester.save
-      assert_equal "--- {}\n",DatabaseTester.connection.select_value("select extras from #{TimeTester.table_name} where id = #{tester.id}")
+      assert_equal YAML.load("--- {}\n"),YAML.load(DatabaseTester.connection.select_value("select extras from #{TimeTester.table_name} where id = #{tester.id}"))
       assert_equal explicit_time,tester.updated_at
 
       # no change
       assert tester.save
-      assert_equal "--- {}\n",DatabaseTester.connection.select_value("select extras from #{TimeTester.table_name} where id = #{tester.id}")
+      assert_equal YAML.load("--- {}\n"),YAML.load(DatabaseTester.connection.select_value("select extras from #{TimeTester.table_name} where id = #{tester.id}"))
       assert_equal explicit_time,tester.updated_at
 
       tester.extras['test'] = 1
       assert tester.save
-      assert_equal "---\ntest: 1\n",DatabaseTester.connection.select_value("select extras from #{TimeTester.table_name} where id = #{tester.id}")
+      assert_equal YAML.load("---\ntest: 1\n"),YAML.load(DatabaseTester.connection.select_value("select extras from #{TimeTester.table_name} where id = #{tester.id}"))
       assert_not_equal explicit_time,tester.updated_at
 
       # reset timestamp
       tester.updated_at = explicit_time
       assert tester.save
-      assert_equal "---\ntest: 1\n",DatabaseTester.connection.select_value("select extras from #{TimeTester.table_name} where id = #{tester.id}")
+      assert_equal YAML.load("---\ntest: 1\n"),YAML.load(DatabaseTester.connection.select_value("select extras from #{TimeTester.table_name} where id = #{tester.id}"))
       assert_equal explicit_time,tester.updated_at
 
       # no change
       assert tester.save
-      assert_equal "---\ntest: 1\n",DatabaseTester.connection.select_value("select extras from #{TimeTester.table_name} where id = #{tester.id}")
+      assert_equal YAML.load("---\ntest: 1\n"),YAML.load(DatabaseTester.connection.select_value("select extras from #{TimeTester.table_name} where id = #{tester.id}"))
       assert_equal explicit_time,tester.updated_at
 
     end
@@ -236,7 +266,7 @@ module CornedBeef
       tester = DatabaseTester.find tester.id
       assert_equal ({'level1A' => {'level2A' => 'E'},'level1B' => {'level2B' => 'F'}}),tester.corned_beef_hash
       assert_equal ({'level1A' => {'level2A' => 'E'},'level1B' => {'level2B' => 'F'}}),tester.extras
-      assert_equal %(---\nlevel1A:\n  level2A: E\nlevel1B:\n  level2B: F\n),DatabaseTester.connection.select_value("select extras from #{DatabaseTester.table_name} where id = #{tester.id}")
+      assert_equal YAML.load(%(---\nlevel1A:\n  level2A: E\nlevel1B:\n  level2B: F\n)),YAML.load(DatabaseTester.connection.select_value("select extras from #{DatabaseTester.table_name} where id = #{tester.id}"))
     end
 
     should 'respect validators' do
