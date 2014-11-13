@@ -1,1 +1,1 @@
-rvm use ruby-1.9.3@corned_beef --create
+rvm use ruby-2.1.2@corned_beef --create

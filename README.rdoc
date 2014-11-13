@@ -1,7 +1,7 @@
 = (CornedBeef) Hash-based Models {<img src="https://secure.travis-ci.org/spemmons/corned_beef.png?branch=master" alt="Build Status" />}[http://travis-ci.org/spemmons/corned_beef]
 == For ActiveRecord or other Ruby classes
 
-[![Codeship Status for spemmons/corned_beef](https://codeship.com/projects/1895e000-45c4-0132-57bd-7edff9d755cf/status)](https://codeship.com/projects/45125)
+{<img src="https://codeship.com/projects/1895e000-45c4-0132-57bd-7edff9d755cf/status" alt="Build Status" />}[https://codeship.com/projects/45125]
 
 CornedBeef allows the use of Hash-type data structures, such as those coming from JSON or YAML, to be used
 for Ruby classes, and in particular, ActiveRecord classes.
